@@ -22,12 +22,24 @@ def print_file(filename):
 #     subprocess.call(["notepad", filename])
 
 
+def format_ou(ou_string):
+    """
+    Make a human-readable string of the OU
+
+    Example:
+    >>> format_ou("ou=UJUR,ou=UB,ou=UIO,cn=organization,dc=uio,dc=no")
+    'UJUR/UB/UIO'
+    """
+    parts = [item[3:] for item in str(ou_string).split(",") if item.startswith("ou=")]
+    return "/".join(parts)
+
+
 def print_person(entry):
     "Print address slip for an LDAP entry"
     filename = "address-temp.txt"
     try:
         with open(filename, "w") as out:
-            print(entry.cn, str(entry.postalAddress).replace("$", "\n"), sep="\n", end="\n", file=out, flush=True)
+            print(entry.cn, format_ou(entry.eduPersonPrimaryOrgUnitDN), str(entry.postalAddress).replace("$", "\n"), sep="\n", end="\n", file=out, flush=True)
         print_file(filename)
         os.remove(filename)
     except Exception as e:
@@ -38,7 +50,8 @@ def get_user():
     "Lookup a user in LDAP"
     name = get_input("Name: ")
     search_string = "(cn =* %s)" % name
-    con.search(base, search_string, attributes=["cn", "postalAddress"])
+    con.search(base, search_string, attributes=["cn", "postalAddress", "eduPersonPrimaryOrgUnitDN"])
+#     print(con.entries)
 
     for index, user in enumerate(con.entries):
         print("[%d]" % index, user.cn)
