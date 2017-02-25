@@ -1,3 +1,5 @@
+#! python3
+
 from __future__ import print_function
 from ldap3 import Server, Connection, ALL
 import os
