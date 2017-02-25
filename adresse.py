@@ -22,6 +22,22 @@ def print_file(filename):
 #     subprocess.call(["notepad", filename])
 
 
+def make_criteria(string):
+    """
+    Make conjunctive search criteria from a name string
+
+    Example:
+    >>> make_criteria("John Doe")
+    '(&(cn=*John*)(cn=*Doe*))'
+    >>> make_criteria("John ")
+    '(&(cn=*John*))'
+    >>> make_criteria(" John Doe Henry ")
+    '(&(cn=*John*)(cn=*Doe*)(cn=*Henry*))'
+    """
+    terms = ["(cn=*%s*)" % name for name in string.split()if name]
+    return "(&%s)" % "".join(terms)
+
+
 def format_ou(ou_string):
     """
     Make a human-readable string of the OU
@@ -39,7 +55,8 @@ def print_person(entry):
     filename = "address-temp.txt"
     try:
         with open(filename, "w") as out:
-            print(entry.cn, format_ou(entry.eduPersonPrimaryOrgUnitDN), str(entry.postalAddress).replace("$", "\n"), sep="\n", end="\n", file=out, flush=True)
+            print(entry.cn, format_ou(entry.eduPersonPrimaryOrgUnitDN), str(entry.street).replace("$", "\n"), sep="\n", end="\n", file=out, flush=True)
+#             print(entry.cn, format_ou(entry.eduPersonPrimaryOrgUnitDN), str(entry.street).replace("$", "\n"), sep="\n", end="\n", flush=True)
         print_file(filename)
         os.remove(filename)
     except Exception as e:
@@ -49,8 +66,9 @@ def print_person(entry):
 def get_user():
     "Lookup a user in LDAP"
     name = get_input("Name: ")
-    search_string = "(cn =* %s)" % name
-    con.search(base, search_string, attributes=["cn", "postalAddress", "eduPersonPrimaryOrgUnitDN"])
+    query = make_criteria(name)
+#     print(query)
+    con.search(base, query, attributes=["cn", "postalAddress", "eduPersonPrimaryOrgUnitDN", "street"])
 #     print(con.entries)
 
     for index, user in enumerate(con.entries):
