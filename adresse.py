@@ -1,10 +1,27 @@
 from __future__ import print_function
-from ldap3 import Server, Connection, ALL
 import os
+try:
+    from ldap3 import Server, Connection, ALL
+except ImportError:
+    pip_install("ldap3")
+    from ldap3 import Server, Connection, ALL
 
 # Global variables
 con = Connection("ldap.uio.no", auto_bind=True)
 base = "cn=people,dc=uio,dc=no"
+
+
+def pip_install(package):
+    """
+    Install the package using pip
+    """
+    import pip
+    try:
+        pip.main(["install", "--upgrade", package, "--user"])
+    except:
+        print("Unable to install %s using pip." % package)
+#         print("Error: %s: %s" % (exc_info()[0], exc_info()[1]))
+        exit
 
 
 def get_input(prompt):
