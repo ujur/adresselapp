@@ -1,2 +1,2 @@
 # adresselapp
-Script for automatisk utskrift av adresselapper til bøker som går gjennom skranken.
+This script prints out labels containing the full names, organizational belongings and addresses of specific employees at the University of Oslo.
