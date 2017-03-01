@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# encoding: UTF-8
 
 from __future__ import print_function
 import os
@@ -8,20 +9,22 @@ def pip_install(package):
     """
     Install the package using pip
     """
-    import pip
     try:
+        import pip
         pip.main(["install", "--upgrade", package, "--user"])
     except:
         print("Unable to install %s using pip." % package)
 #         print("Error: %s: %s" % (exc_info()[0], exc_info()[1]))
-        exit
+        exit(-1)
 
 
 try:
     from ldap3 import Server, Connection, ALL
 except ImportError:
     pip_install("ldap3")
-    from ldap3 import Server, Connection, ALL
+    print("Software installed, restart program. Exiting in 5 seconds.")
+    sleep(5)
+    exit(0)
 
 # Global variables
 con = Connection("ldap.uio.no", auto_bind=True)
@@ -39,8 +42,11 @@ def get_input(prompt):
 def print_file(filename):
     "Send a text file to the default Windows printer"
     import subprocess
-    subprocess.call(["notepad", "/p", filename])
-#     subprocess.call(["notepad", filename])
+    try:
+        subprocess.call(["notepad", "/p", filename])
+#         subprocess.call(["notepad", filename])
+    except Exception as e:
+        print("Unable to start Notepad:", e)
 
 
 def make_criteria(string):
@@ -97,7 +103,7 @@ def get_user():
 
     if len(con.entries) == 0:
         print("No match for %s" % name)
-        print("Names with more than 200 matches cannot be displayed")
+        print("Names with more than 50 matches cannot be displayed")
         return
 
     choice = ""
