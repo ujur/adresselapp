@@ -1,30 +1,19 @@
 #!/usr/bin/env python3
 # encoding: UTF-8
-
 from __future__ import print_function
 import os
-
-
-def pip_install(package):
-    """
-    Install the package using pip
-    """
-    try:
-        import pip
-        pip.main(["install", "--upgrade", package, "--user"])
-    except Exception as e:
-        print("Unable to install %s using pip." % package)
-        print("Exception:", e)
-        exit(-1)
-
-
+from utils import pip_install
+# Install dependencies if required
 try:
     from ldap3 import Server, Connection, ALL
+    from lxml import html
+    import requests
 except ImportError:
-    pip_install("ldap3")
+    pip_install("ldap3", "requests", "lxml")
     print("Software installed, restart program. Exiting in 5 seconds.")
     sleep(5)
     exit(0)
+
 
 # Global variables
 con = Connection("ldap.uio.no", auto_bind=True)
@@ -95,12 +84,34 @@ def format_ou(ou_string):
     return "/".join(parts)
 
 
+def get_address_from_web(username):
+    """
+    Get the correct address from the person profile webpage
+    Parameters:
+        username of the person
+    Example:
+    >>> get_address_from_web("ewinge")
+    ['Karl Johans gate 47', 'Domus Bibliotheca', '0162 OSLO']
+    >>> get_address_from_web("invalid-user-name")
+    []
+    """
+    URL = "http://www.uio.no/?vrtx=person-view&uid=" + username
+    page = requests.get(URL)
+    tree = html.fromstring(page.content)
+    address = tree.xpath('//div[@class="vrtx-person-visiting-address"]/span[@class="vrtx-address-line"]/text()')
+    return address
+
 def print_person(entry):
-    "Print address slip for an LDAP entry"
+    "print address slip for an LDAP entry"
     filename = "address-temp.txt"
     try:
         with open(filename, "w") as out:
-            print(entry.cn, get_user_ou(entry), xstr(entry.street).replace("$", "\n"), sep="\n", end="\n", file=out, flush=True)
+            address = [xstr(entry.cn)]
+            address.append(get_user_ou(entry))
+            address.append(", ".join(get_address_from_web(str(entry.uid))))
+            address = "\n".join(address)
+            print(address)
+            print(address, file=out, flush=True)
         print_file(filename)
         os.remove(filename)
     except Exception as e:
@@ -115,7 +126,7 @@ def find_person():
 
     query = make_criteria(name)
 #     print(query)
-    con.search(base, query, attributes=["cn", "postalAddress", "eduPersonPrimaryOrgUnitDN", "street", "uioShortPhone"])
+    con.search(base, query, attributes=["uid", "cn", "postalAddress", "eduPersonPrimaryOrgUnitDN", "street", "uioShortPhone"])
 #     print(con.entries)
 
     for index, user in enumerate(con.entries):
@@ -145,5 +156,4 @@ if __name__ == '__main__':
         try:
             find_person()
         except KeyboardInterrupt:
-            print("Bye")
             exit(0)
