@@ -130,7 +130,7 @@ def find_person():
 #     print(con.entries)
 
     for index, user in enumerate(con.entries):
-        print("[%2d]  %-40s  %-30s  %s" % (index, user.cn, get_user_ou(user), xstr(user.uioShortPhone)))
+        print("[%2d] %-35s %-25s %s" % (index, user.cn, get_user_ou(user), xstr(user.uioShortPhone)))
 
     if len(con.entries) == 0:
         print("No match for %s" % name)
