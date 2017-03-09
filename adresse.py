@@ -96,7 +96,7 @@ def get_address_from_web(username):
         username of the person
     Example:
     >>> get_address_from_web("ewinge")
-    ['Karl Johans gate 47', 'Domus Bibliotheca', '0162 OSLO']
+    ['Karl Johans gate 47', 'Domus Bibliotheca']
     >>> get_address_from_web("invalid-user-name")
     []
     """
@@ -104,7 +104,8 @@ def get_address_from_web(username):
     page = requests.get(URL)
     tree = html.fromstring(page.content)
     address = tree.xpath('//div[@class="vrtx-person-visiting-address"]/span[@class="vrtx-address-line"]/text()')
-    return address
+    # remove postcode
+    return address[:-1]
 
 
 def print_person(entry):
@@ -116,7 +117,7 @@ def print_person(entry):
         address = [xstr(entry.cn)]
         address.append(get_user_ou(entry))
         address.append(", ".join(get_address_from_web(str(entry.uid))))
-        address = "\n".join(address) #drop postcode
+        address = "\n".join(address)
         print(address)
         paragraph = document.add_paragraph(address)
         document.save(filename)
