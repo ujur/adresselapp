@@ -2,16 +2,18 @@
 # encoding: UTF-8
 from __future__ import print_function
 import os
+import time
 from utils import pip_install
 # Install dependencies if required
 try:
     from ldap3 import Server, Connection, ALL
     from lxml import html
     import requests
+    from docx import Document
 except ImportError:
-    pip_install("ldap3", "requests", "lxml")
+    pip_install("ldap3", "requests", "lxml", "python-docx")
     print("Software installed, restart program. Exiting in 5 seconds.")
-    sleep(5)
+    time.sleep(5)
     exit(0)
 
 
@@ -28,14 +30,17 @@ def get_input(prompt):
     return read
 
 
-def print_file(filename):
-    "Send a text file to the default Windows printer"
+def print_word_file(filename):
+    "Send a word file to the default Windows printer"
     import subprocess
     try:
-        subprocess.call(["notepad", "/p", filename])
-#         subprocess.call(["notepad", filename])
+        print("printing...")
+        subprocess.run(["write", "/p", filename])
+#         subprocess.run(["write", filename])
+        # subprocess.run should wait for the process to complete, doesn't work with write
+        time.sleep(5)
     except Exception as e:
-        print("Unable to start Notepad:", e)
+        print("Unable to print document:", e)
 
 
 def get_user_ou(user):
@@ -101,18 +106,21 @@ def get_address_from_web(username):
     address = tree.xpath('//div[@class="vrtx-person-visiting-address"]/span[@class="vrtx-address-line"]/text()')
     return address
 
+
 def print_person(entry):
     "print address slip for an LDAP entry"
-    filename = "address-temp.txt"
+    filename = os.path.abspath("address-temp.docx")
+
     try:
-        with open(filename, "w") as out:
-            address = [xstr(entry.cn)]
-            address.append(get_user_ou(entry))
-            address.append(", ".join(get_address_from_web(str(entry.uid))))
-            address = "\n".join(address)
-            print(address)
-            print(address, file=out, flush=True)
-        print_file(filename)
+        document = Document()
+        address = [xstr(entry.cn)]
+        address.append(get_user_ou(entry))
+        address.append(", ".join(get_address_from_web(str(entry.uid))))
+        address = "\n".join(address) #drop postcode
+        print(address)
+        paragraph = document.add_paragraph(address)
+        document.save(filename)
+        print_word_file(filename)
         os.remove(filename)
     except Exception as e:
         print(e)
