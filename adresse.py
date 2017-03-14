@@ -10,6 +10,7 @@ try:
     from lxml import html
     import requests
     from docx import Document
+    from docx.shared import Pt
 except ImportError:
     pip_install("ldap3", "requests", "lxml", "python-docx")
     print("Software installed, restart program. Exiting in 5 seconds.")
@@ -112,14 +113,18 @@ def print_person(entry):
     "print address slip for an LDAP entry"
     filename = os.path.abspath("address-temp.docx")
 
+    address = [xstr(entry.cn)]
+    address.append(get_user_ou(entry))
+    address.append(", ".join(get_address_from_web(str(entry.uid))))
+    address = "\n".join(address)
+    print(address)
+    # Create and print docx document
+    document = Document()
+    paragraph = document.add_paragraph()
+    run = paragraph.add_run()
+#     run.font.name = 'Calibri'
+    run.font.size = Pt(14)
     try:
-        document = Document()
-        address = [xstr(entry.cn)]
-        address.append(get_user_ou(entry))
-        address.append(", ".join(get_address_from_web(str(entry.uid))))
-        address = "\n".join(address)
-        print(address)
-        paragraph = document.add_paragraph(address)
         document.save(filename)
         print_word_file(filename)
         os.remove(filename)
