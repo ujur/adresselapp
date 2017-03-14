@@ -121,7 +121,7 @@ def print_person(entry):
     # Create and print docx document
     document = Document()
     paragraph = document.add_paragraph()
-    run = paragraph.add_run()
+    run = paragraph.add_run(address)
 #     run.font.name = 'Calibri'
     run.font.size = Pt(14)
     try:
