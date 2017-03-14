@@ -74,7 +74,7 @@ def make_criteria(string):
     >>> make_criteria(" John Doe Henry ")
     '(&(cn=*John*)(cn=*Doe*)(cn=*Henry*))'
     """
-    terms = ["(cn=*%s*)" % name for name in string.split()if name]
+    terms = ["(cn=*%s*)" % name.strip(",.") for name in string.split()if name]
     return "(&%s)" % "".join(terms)
 
 
