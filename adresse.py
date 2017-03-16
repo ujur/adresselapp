@@ -18,11 +18,6 @@ except ImportError:
     exit(0)
 
 
-# Global variables
-con = Connection("ldap.uio.no", auto_bind=True)
-base = "cn=people,dc=uio,dc=no"
-
-
 def get_input(prompt):
     "Get a nonempty input from the user"
     read = ""
@@ -140,29 +135,29 @@ def find_person():
 
     query = make_criteria(name)
 #     print(query)
-    con.search(base, query, attributes=["uid", "cn", "postalAddress", "eduPersonPrimaryOrgUnitDN", "street", "uioShortPhone"])
-#     print(con.entries)
+    with(Connection("ldap.uio.no", auto_bind=True)) as con:
+        con.search("cn=people,dc=uio,dc=no", query, attributes=["uid", "cn", "postalAddress", "eduPersonPrimaryOrgUnitDN", "street", "uioShortPhone"])
+#         print(con.entries)
 
-    for index, user in enumerate(con.entries):
-        print("[%2d] %-35s %-25s %s" % (index, user.cn, get_user_ou(user), xstr(user.uioShortPhone)))
+        for index, user in enumerate(con.entries):
+            print("[%2d] %-35s %-25s %s" % (index, user.cn, get_user_ou(user), xstr(user.uioShortPhone)))
 
-    if len(con.entries) == 0:
-        print("No match for %s" % name)
-        print("Names with more than 50 matches cannot be displayed")
-        return
-
-    choice = ""
-    while not (isinstance(choice, int) and choice >= 0 and choice < len(con.entries)):
-        choice = get_input("Select person 0-%d (a aborts): " % (len(con.entries) - 1))
-        if choice == "a":
+        if len(con.entries) == 0:
+            print("No match for %s" % name)
+            print("Names with more than 50 matches cannot be displayed")
             return
-        try:
-            choice = int(choice)
-        except ValueError:
-            pass
 
-    entry = con.entries[choice]
-    print_person(entry)
+        choice = ""
+        while not (isinstance(choice, int) and choice >= 0 and choice < len(con.entries)):
+            choice = get_input("Select person 0-%d (a aborts): " % (len(con.entries) - 1))
+            if choice == "a":
+                return
+            try:
+                choice = int(choice)
+            except ValueError:
+                pass
+        entry = con.entries[choice]
+        print_person(entry)
 
 
 if __name__ == '__main__':
