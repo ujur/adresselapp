@@ -12,7 +12,7 @@ try:
     from docx import Document
     from docx.shared import Pt
 except ImportError:
-    pip_install("ldap3", "requests", "lxml", "python-docx")
+    pip_install("ldap3", "requests", "lxml", "python-docx==0.8.7")
     print("Software installed, restart program. Exiting in 5 seconds.")
     time.sleep(5)
     exit(0)
@@ -118,7 +118,7 @@ def print_person(entry):
     paragraph = document.add_paragraph()
     run = paragraph.add_run(address)
 #     run.font.name = 'Calibri'
-    run.font.size = Pt(14)
+    run.font.size = Pt(16)
     try:
         document.save(filename)
         print_word_file(filename)
