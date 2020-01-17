@@ -129,7 +129,7 @@ def print_person(entry):
 
 def find_person():
     "Lookup a user in LDAP"
-    name = get_input("Name: ").strip().lower()
+    name = get_input("Name: ").strip()
     if name in["quit", "exit"]:
         exit(0)
 
