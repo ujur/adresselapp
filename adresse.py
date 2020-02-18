@@ -133,7 +133,7 @@ def find_person():
     if name in["quit", "exit"]:
         exit(0)
 
-    query = make_criteria(name)
+    query = "(cn=*" + name + "*)"
 #     print(query)
     with(Connection("ldap.uio.no", auto_bind=True)) as con:
         con.search("cn=people,dc=uio,dc=no", query, attributes=["uid", "cn", "postalAddress", "eduPersonPrimaryOrgUnitDN", "street", "uioShortPhone"])
