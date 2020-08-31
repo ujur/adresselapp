@@ -101,7 +101,8 @@ def get_address_from_web(username):
     tree = html.fromstring(page.content)
     address = tree.xpath('//div[@class="vrtx-person-visiting-address"]/span[@class="vrtx-address-line"]/text()')
     # remove postcode
-    return address[:-1]
+    address = address[:-1] if len(address) > 1 else address
+    return address
 
 
 def print_person(entry):
