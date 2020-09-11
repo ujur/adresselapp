@@ -99,9 +99,9 @@ def get_address_from_web(username):
     URL = "http://www.uio.no/?vrtx=person-view&uid=" + username
     page = requests.get(URL)
     tree = html.fromstring(page.content)
-    address = tree.xpath('//div[@class="vrtx-person-visiting-address"]/span[@class="vrtx-address-line"]/text()')
+    address = tree.xpath('//div[contains(@class,"vrtx-person-visiting-address")]/span[@class="vrtx-address-line"]/text()')
     # remove postcode
-    address = address[:-1] if len(address) > 1 else address
+    address = address[:-1] if len(address) > 1 else [address[0].strip()]
     return address
 
 
