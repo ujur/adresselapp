@@ -163,6 +163,8 @@ def find_person():
 
 if __name__ == '__main__':
     while True:
+        print('Søk på navn.')
+        print('Trunkeringstegn: *')
         try:
             find_person()
         except KeyboardInterrupt:
