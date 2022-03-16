@@ -1,0 +1,4 @@
+ldap3
+requests
+lxml
+python-docx==0.8.7

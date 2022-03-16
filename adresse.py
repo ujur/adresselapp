@@ -2,8 +2,9 @@
 # encoding: UTF-8
 from __future__ import print_function
 import os
+import sys
 import time
-from utils import pip_install
+import subprocess
 # Install dependencies if required
 try:
     from ldap3 import Server, Connection, ALL
@@ -12,7 +13,8 @@ try:
     from docx import Document
     from docx.shared import Pt
 except ImportError:
-    pip_install("ldap3", "requests", "lxml", "python-docx==0.8.7")
+    subprocess.check_call([sys.executable, '-m', 'pip',
+                           'install', '-r', 'requirements.txt'])
     print("Software installed, restart program. Exiting in 5 seconds.")
     time.sleep(5)
     exit(0)
@@ -33,7 +35,8 @@ def print_word_file(filename):
         print("printing...")
         subprocess.run(["write", "/p", filename])
 #         subprocess.run(["write", filename])
-        # subprocess.run should wait for the process to complete, doesn't work with write
+        # subprocess.run should wait for the process to complete, doesn't work
+        # with write
         time.sleep(5)
     except Exception as e:
         print("Unable to print document:", e)
@@ -99,7 +102,8 @@ def get_address_from_web(username):
     URL = "http://www.uio.no/?vrtx=person-view&uid=" + username
     page = requests.get(URL)
     tree = html.fromstring(page.content)
-    address = tree.xpath('//div[contains(@class,"vrtx-person-visiting-address")]/span[@class="vrtx-address-line"]/text()')
+    address = tree.xpath(
+        '//div[contains(@class,"vrtx-person-visiting-address")]/span[@class="vrtx-address-line"]/text()')
     # remove postcode
     if address:
         address = address[:-1] if len(address) > 1 else [address[0].strip()]
@@ -112,7 +116,7 @@ def print_person(entry):
 
     address = [xstr(entry.cn)]
     address.append(get_user_ou(entry))
-    address.append(", ".join(get_address_from_web(str(entry.uid))))
+    address.append("\n".join(get_address_from_web(str(entry.uid))))
     address = "\n".join(address)
     print(address)
     # Create and print docx document
@@ -138,11 +142,26 @@ def find_person():
     query = "(cn=*" + name + "*)"
 #     print(query)
     with(Connection("ldap.uio.no", auto_bind=True)) as con:
-        con.search("cn=people,dc=uio,dc=no", query, attributes=["uid", "cn", "postalAddress", "eduPersonPrimaryOrgUnitDN", "street", "uioShortPhone"])
+        con.search(
+            "cn=people,dc=uio,dc=no",
+            query,
+            attributes=[
+                "uid",
+                "cn",
+                "postalAddress",
+                "eduPersonPrimaryOrgUnitDN",
+                "street",
+                "uioShortPhone"])
 #         print(con.entries)
 
         for index, user in enumerate(con.entries):
-            print("[%2d] %-35s %-25s %s" % (index, user.cn, get_user_ou(user), xstr(user.uioShortPhone)))
+            print(
+                "[%2d] %-35s %-25s %s" %
+                (index,
+                 user.cn,
+                 get_user_ou(user),
+                 xstr(
+                     user.uioShortPhone)))
 
         if len(con.entries) == 0:
             print("No match for %s" % name)
@@ -150,8 +169,10 @@ def find_person():
             return
 
         choice = ""
-        while not (isinstance(choice, int) and choice >= 0 and choice < len(con.entries)):
-            choice = get_input("Select person 0-%d (a aborts): " % (len(con.entries) - 1))
+        while not (isinstance(choice, int) and choice >=
+                   0 and choice < len(con.entries)):
+            choice = get_input("Select person 0-%d (a aborts): " %
+                               (len(con.entries) - 1))
             if choice == "a":
                 return
             try:
