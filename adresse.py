@@ -12,7 +12,8 @@ try:
     import requests
     from docx import Document
     from docx.shared import Pt
-except ImportError:
+except ImportError as e:
+    print(e)
     # subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
     subprocess.run([sys.executable, '-m', 'pip', 'install', '--user',
                     'ldap3', 'requests', 'lxml', 'python-docx==0.8.7'], check=True)
