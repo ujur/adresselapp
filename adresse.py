@@ -16,7 +16,12 @@ except ImportError as e:
     print(e)
     # subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
     subprocess.run([sys.executable, '-m', 'pip', 'install', '--user',
-                    'ldap3', 'requests', 'lxml', 'python-docx==0.8.7'], check=True)
+                    'ldap3',
+                    'requests',
+                    'lxml',
+                    'python-docx==0.8.11'
+                    ],
+                   check=True)
     print("Software installed, restart program. Exiting in 5 seconds.")
     time.sleep(5)
     exit(0)
