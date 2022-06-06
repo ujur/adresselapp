@@ -189,7 +189,7 @@ def find_person():
 
 
 if __name__ == '__main__':
-    print(f'Python {sys.version}')
+    print('Python' + sys.version)
     while True:
         print('Søk på navn.')
         print('Trunkeringstegn: *')
