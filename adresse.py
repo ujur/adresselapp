@@ -35,14 +35,10 @@ def get_input(prompt):
 
 def print_word_file(filename):
     "Send a word file to the default Windows printer"
-    import subprocess
     try:
         print("printing...")
-        subprocess.run(["write", "/p", filename])
+        subprocess.run(["write", "/p", filename], check=True)
 #         subprocess.run(["write", filename])
-        # subprocess.run should wait for the process to complete, doesn't work
-        # with write
-        time.sleep(5)
     except Exception as e:
         print("Unable to print document:", e)
 
