@@ -129,12 +129,12 @@ def print_person(entry):
     #     run.font.name = 'Calibri'
         run.font.size = Pt(16)
         try:
-            print('Saving file:')
+            # print('Saving file:')
             document.save(file.name)
             file.close()
-            print('Printing file:')
+            # print('Printing file:')
             print_word_file(file.name)
-            print('deleting file:')
+            # print('deleting file:')
             time.sleep(3)
             os.remove(file.name)
         except Exception as e:
