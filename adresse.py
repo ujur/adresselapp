@@ -142,7 +142,7 @@ def find_person():
 
     query = "(cn=*" + name + "*)"
 #     print(query)
-    with(Connection("ldap.uio.no", port=636, use_ssl=True, auto_bind=True)) as con:
+    with(Connection("ldap.uio.no", auto_bind=True)) as con:
         con.search(
             "cn=people,dc=uio,dc=no",
             query,
