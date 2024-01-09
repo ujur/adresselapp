@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import subprocess
+print('Python' + sys.version)
 # Install dependencies if required
 try:
     from ldap3 import Server, Connection, ALL
@@ -134,12 +135,16 @@ def print_person(entry):
         print(e)
 
 
-def find_person():
-    "Lookup a user in LDAP"
-    name = get_input("Name: ").strip()
+def prompt():
+    "Display prompt to user"
+    name = get_input("Navn: ").strip()
     if name in["quit", "exit"]:
         exit(0)
+    find_person(name)
 
+
+def find_person(name):
+    "Lookup a user in LDAP"
     query = "(cn=*" + name + "*)"
 #     print(query)
     with(Connection("ldap.uio.no", auto_bind=True)) as con:
@@ -185,12 +190,11 @@ def find_person():
 
 
 if __name__ == '__main__':
-    print('Python' + sys.version)
     while True:
         print('Søk på navn.')
         print('Trunkeringstegn: *')
         try:
-            find_person()
+            prompt()
         except KeyboardInterrupt:
             exit(0)
         except Exception as e:
