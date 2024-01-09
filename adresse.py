@@ -3,6 +3,8 @@ import os
 import sys
 import time
 import subprocess
+import tempfile
+
 print('Python' + sys.version)
 # Install dependencies if required
 try:
@@ -39,7 +41,7 @@ def print_word_file(filename):
     try:
         print("printing...")
         subprocess.run(["write", "/p", filename], check=True)
-#         subprocess.run(["write", filename])
+        # subprocess.run(["write", filename])
     except Exception as e:
         print("Unable to print document:", e)
 
@@ -114,25 +116,29 @@ def get_address_from_web(username):
 
 def print_person(entry):
     "print address slip for an LDAP entry"
-    filename = os.path.abspath("address-temp.docx")
-
-    address = [xstr(entry.cn)]
-    address.append(get_user_ou(entry))
-    address.append("\n".join(get_address_from_web(str(entry.uid))))
-    address = "\n".join(address)
-    print(address)
-    # Create and print docx document
-    document = Document()
-    paragraph = document.add_paragraph()
-    run = paragraph.add_run(address)
-#     run.font.name = 'Calibri'
-    run.font.size = Pt(16)
-    try:
-        document.save(filename)
-        print_word_file(filename)
-        os.remove(filename)
-    except Exception as e:
-        print(e)
+    with tempfile.NamedTemporaryFile(suffix='.docx', delete=False) as file:
+        address = [xstr(entry.cn)]
+        address.append(get_user_ou(entry))
+        address.append("\n".join(get_address_from_web(str(entry.uid))))
+        address = "\n".join(address)
+        print(address)
+        # Create and print docx document
+        document = Document()
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run(address)
+    #     run.font.name = 'Calibri'
+        run.font.size = Pt(16)
+        try:
+            print('Saving file:')
+            document.save(file.name)
+            file.close()
+            print('Printing file:')
+            print_word_file(file.name)
+            print('deleting file:')
+            time.sleep(3)
+            os.remove(file.name)
+        except Exception as e:
+            print(e)
 
 
 def prompt():
