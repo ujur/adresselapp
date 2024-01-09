@@ -143,6 +143,8 @@ def print_person(entry):
 
 def prompt():
     "Display prompt to user"
+    print('Søk på navn.')
+    print('Trunkeringstegn: *')
     name = get_input("Navn: ").strip()
     if name in["quit", "exit"]:
         exit(0)
@@ -197,8 +199,6 @@ def find_person(name):
 
 if __name__ == '__main__':
     while True:
-        print('Søk på navn.')
-        print('Trunkeringstegn: *')
         try:
             prompt()
         except KeyboardInterrupt:
