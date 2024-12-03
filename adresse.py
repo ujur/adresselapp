@@ -12,7 +12,7 @@ try:
     from lxml import html
     import requests
     from docx import Document
-    from docx.shared import Pt
+    from docx.shared import Pt, Cm
 except ImportError as e:
     print(e)
     # subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
@@ -42,6 +42,13 @@ def print_word_file(filename):
         print("printing...")
         subprocess.run(["write", "/p", filename], check=True)
         # subprocess.run(["write", filename])
+
+        # Try printing with word, doesn't quite work because macros are disabled?
+        # subprocess.run([r'C:\Program Files\Microsoft Office\root\Office16\winword.exe',
+        #                 filename,
+        #                '/mFilePrintDefault', '/mFileExit', '/q', '/n'], check=True)
+
+        # subprocess.run([r'C:\Program Files\Microsoft Office\root\Office16\winword.exe', '/q', '/n', filename])
     except Exception as e:
         print("Unable to print document:", e)
 
@@ -123,6 +130,12 @@ def print_person(entry):
         document = Document()
         paragraph = document.add_paragraph()
         run = paragraph.add_run(address)
+        # page margins
+        sections = document.sections
+        for section in sections:
+            section.top_margin = Cm(1)
+            section.left_margin = Cm(1)
+            section.right_margin = Cm(11)
     #     run.font.name = 'Calibri'
         run.font.size = Pt(16)
         try:
